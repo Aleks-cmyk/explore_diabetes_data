@@ -1,0 +1,34 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+.venv-reports/
+.venv-deploy/
+venv/
+
+# Git
+.git/
+.gitignore
+
+# Notebooks & docs
+notebooks/
+docs/
+
+# Data & ML artifacts (mount separately if needed)
+data/
+artifacts/
+
+# Tests
+tests/
+
+# Logs & results
+logs/
+results/
+figures/
+
+# OS files
+.DS_Store
+Thumbs.db

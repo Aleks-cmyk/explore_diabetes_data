@@ -9,9 +9,30 @@ Test set is held out for final model comparison.
 import pandas as pd
 import pickle
 from pathlib import Path
+from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
-from load_model_data import load_model_data
+from load_model_data import load_model_data, CGM_PERCENTILES
+
+PCT_COLS = [f'cgm_p{p}' for p in CGM_PERCENTILES]
+
+
+def add_pca_features(train: pd.DataFrame, test: pd.DataFrame, n_components: int = 3):
+    """
+    Replace CGM percentile columns with PCA components fitted on the train set only.
+    """
+    scaler = StandardScaler().fit(train[PCT_COLS])
+    pca = PCA(n_components=n_components, random_state=42).fit(scaler.transform(train[PCT_COLS]))
+    pc_cols = [f'pc{i + 1}' for i in range(n_components)]
+
+    result = []
+    for df in (train, test):
+        pcs = pca.transform(scaler.transform(df[PCT_COLS]))
+        df = df.drop(columns=PCT_COLS).copy()
+        df[pc_cols] = pcs
+        result.append(df.reset_index(drop=True))
+    return result
 
 
 def create_and_save_splits(
@@ -65,6 +86,8 @@ def create_and_save_splits(
     # Reset indices
     df_train = df_train.reset_index(drop=True)
     df_test = df_test.reset_index(drop=True)
+
+    df_train, df_test = add_pca_features(df_train, df_test)
 
     splits = {
         'train': df_train,

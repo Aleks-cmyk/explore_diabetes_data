@@ -9,6 +9,7 @@ in machine learning models.
 import pandas as pd
 from pathlib import Path
 import numpy as np
+CGM_PERCENTILES = np.arange(0, 101, 5)
 
 
 def load_all_time_series(data_dir: Path) -> dict:
@@ -160,6 +161,22 @@ def calculate_glucose_metrics(patient_data: dict) -> tuple:
     return tar.mean(), tir.mean(), tbr.mean()
 
 
+def add_cgm_percentiles(model_data: pd.DataFrame, all_ts: dict) -> pd.DataFrame:
+    """
+    Add each patient's CGM percentiles (0, 5, ..., 100) as columns cgm_p0 ... cgm_p100.
+    """
+    percentile_rows = [
+        np.percentile(all_ts[pid]['time_series']['CGM (mg / dl)'].dropna(), CGM_PERCENTILES)
+        for pid in model_data['patient']
+    ]
+    pct_df = pd.DataFrame(
+        percentile_rows,
+        columns=[f'cgm_p{p}' for p in CGM_PERCENTILES],
+        index=model_data.index
+    )
+    return pd.concat([model_data, pct_df], axis=1)
+
+
 def load_model_data(data_dir: Path = None) -> pd.DataFrame:
     """
     Load and preprocess diabetes model data.
@@ -200,6 +217,7 @@ def load_model_data(data_dir: Path = None) -> pd.DataFrame:
         - n_hyper_events: Number of hyperglycemic events (CGM > 180 mg/dL)
         - rapid_changes: Number of rapid glucose changes (>20 mg/dL)
         - mean_excursion: Mean magnitude of glucose excursions
+        - cgm_p0 ... cgm_p100: CGM percentiles per patient (every 5th percentile)
 
         Rows with missing or invalid HbA1c values ('/') are excluded.
     """
@@ -269,6 +287,8 @@ def load_model_data(data_dir: Path = None) -> pd.DataFrame:
 
     # Convert hba1c to numeric if needed
     model_data['hba1c'] = pd.to_numeric(model_data['hba1c'], errors='coerce')
+
+    model_data = add_cgm_percentiles(model_data, all_ts)
 
     return model_data
 

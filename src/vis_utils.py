@@ -314,3 +314,36 @@ def plot_patient_timeseries(patient_data, patient_id, include_cols=None, exclude
         hovermode='x unified'
     )
     return fig
+
+
+def plot_gt_vs_pred(y_true, y_pred, title):
+    """
+    Measured vs predicted values with the perfect-prediction line.
+
+    Args:
+        y_true: Measured target values.
+        y_pred: Predicted values, in the same order.
+        title: Figure title; the test R² and RMSE are added as a subtitle.
+
+    Returns:
+        Plotly Figure.
+    """
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+    lo = min(y_true.min(), y_pred.min())
+    hi = max(y_true.max(), y_pred.max())
+    rmse = np.sqrt(np.mean((y_true - y_pred) ** 2))
+    r2 = 1 - np.sum((y_true - y_pred) ** 2) / np.sum((y_true - y_true.mean()) ** 2)
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=y_true, y=y_pred, mode='markers',
+                             marker=dict(size=9, opacity=0.7), name='test patients'))
+    fig.add_trace(go.Scatter(x=[lo, hi], y=[lo, hi], mode='lines',
+                             line=dict(dash='dash', color='grey'), name='perfect prediction'))
+    fig.update_layout(
+        title=f'{title}<br><sup>test R² = {r2:.2f}, RMSE = {rmse:.1f} mmol/mol</sup>',
+        xaxis_title='Measured HbA1c (mmol/mol)',
+        yaxis_title='Predicted HbA1c (mmol/mol)',
+        height=500, width=500, legend=dict(orientation='h', y=-0.2)
+    )
+    return fig

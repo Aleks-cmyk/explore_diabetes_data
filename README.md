@@ -2,13 +2,9 @@
 
 A small, hands-on machine learning project on diabetes data. The goal was to learn how to work with glucose time series (continuous glucose monitoring, CGM) and clinical records, and to test how well the available features can predict HbA1c, the standard long-term blood glucose marker.
 
-**Main finding:** the CGM data we have, about 1 to 2 weeks per patient, probably carries too little information about HbA1c, or the HbA1c values were measured at a different time from the CGM. Our models reach a mean held-out R² of about 0.24 over five random splits. A single calibrated CGM summary, the clinical Glucose Management Indicator (GMI) recalibrated on our training data, reaches the same level. Raw GMI, the published formula, is biased by about 25 mmol/mol for this cohort. The results are reported honestly below, including the hypotheses I could not test.
+**Main finding:** the CGM data I have, about 1 to 2 weeks per patient, probably carries too little information about HbA1c, or the HbA1c values were measured at a different time from the CGM. My models reach a mean held-out R² of about 0.24 over five random splits. A single calibrated CGM summary, the clinical Glucose Management Indicator (GMI) recalibrated on my training data, reaches the same level. Raw GMI, the published formula, is biased by about 25 mmol/mol for this cohort. The results are reported honestly below, including the hypotheses I could not test.
 
 ---
-
-## Motivation
-
-I am learning ML engineering and wanted a project that goes through the full workflow on real, messy medical data: exploration, data quality checks, feature engineering, model comparison with proper validation, and an honest assessment of results. Diabetes data is also a good way to get familiar with CGM readings, glucose metrics such as Time in Range, and the clinical meaning of HbA1c.
 
 ## Dataset
 
@@ -52,7 +48,7 @@ Patients with a missing HbA1c (recorded as `/`) are excluded from modeling, whic
 ### Visualization (`src/vis_utils.py`)
 - Plotly functions shared by the notebooks: patient time series with glucose zones, monitoring-duration violin plots, correlation heatmap, and feature-vs-HbA1c scatter plots with trend lines and Pearson r.
 - Each function returns a figure rather than showing it, so notebooks can display it or save it.
-- The PNG figures in this README are exported by `notebooks/05_readme_figures.ipynb`.
+- Each PNG figure in this README is saved by the notebook that produces it, into `figures/`.
 
 ### 3. Dimensionality reduction (`notebooks/02_dim_reduction.ipynb`)
 - Visualized per-patient CGM percentile profiles in 3D with PCA, UMAP and t-SNE, colored by HbA1c. A single script switches between the three methods.
@@ -156,8 +152,7 @@ explore_diabetes_data/
 │   ├── 01_random_forest.ipynb    # Random Forest, default and grid search
 │   ├── 02_dim_reduction.ipynb    # PCA, UMAP and t-SNE of CGM profiles
 │   ├── 03_models_w_pca_features.ipynb  # Five-seed comparison with PCA features
-│   ├── 04_gmi_baseline.ipynb     # GMI, raw and recalibrated, as a clinical baseline
-│   └── 05_readme_figures.ipynb   # Exports the figures in this README
+│   └── 04_gmi_baseline.ipynb     # GMI, raw and recalibrated, as a clinical baseline
 ├── src/
 │   ├── load_model_data.py        # Loads time series and summaries, builds features
 │   ├── prepare_splits.py         # Train/test split, PCA fitted on train only, saving
@@ -217,7 +212,6 @@ Python, pandas, NumPy, scikit-learn, Plotly, Kaleido (PNG export of figures), UM
 - Analyze agreement between CGM and CBG.
 - **Manifold learning, properly.** The UMAP and t-SNE embeddings used default settings. The next step is to tune them and to measure each embedding with a number, not just by eye.
 - **Check the GMI bias by diabetes type**, and test GMI on data with longer CGM windows or closer HbA1c dates.
-- **Nested cross-validation** if the forest's hyperparameters are to be reported as tuned.
 - **Regularized linear models** (Ridge, Lasso), which are the natural next step for the linear models.
 
 

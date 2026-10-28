@@ -159,7 +159,6 @@ explore_diabetes_data/
 │   ├── data_utils.py             # Helpers: polynomial features, X/y extraction
 │   └── vis_utils.py              # Plotly figures for EDA and models (returns figures)
 ├── pyproject.toml, uv.lock       # Dependencies managed with uv
-├── CLAUDE.md                     # Project plan and working conventions
 └── README.md
 ```
 
